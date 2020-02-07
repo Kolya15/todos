@@ -22,5 +22,10 @@ main{
     border: 2px solid #000000;
 }
 .title-note{
-    display: inline-block;
+    /*display: inline-block;*/
 }
+.completed-note{
+    margin-top: 50px;
+    display: none;
+}
+
