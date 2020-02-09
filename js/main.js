@@ -1,20 +1,18 @@
 let mainInput = document.querySelector('.main-input');
 let section = document.querySelector('.show-Note');
 let section1 = document.querySelector('.completed-note');
-console.log(section1);
 let arrayTodos = [];
 
 mainInput.addEventListener('keydown', function (event){
     if (event.code == "Enter") {
         if (mainInput.value.length) {
             let newNote = {
-                id: Math.random()*Math.random(),
+                id: 'E'+ Math.floor(Math.random()*Math.random() * 1000),
                 title: mainInput.value,
                 completed: false,
             }
             showNewNote(newNote);
             arrayTodos.push(newNote);
-            console.log(arrayTodos);
             mainInput.value = null;
         }
     }
@@ -39,16 +37,32 @@ function getTodo(event) {
 function check(event) {
     if (arrayTodos[getTodo(event)].completed == false){
         arrayTodos[getTodo(event)].completed = true;
-        showCompletedNote();
+
     }
     else {
         arrayTodos[getTodo(event)].completed = false;
+        const target = event.target;
+        const parentId = target.parentNode.id;
+            // console.log(Array.from(document.querySelectorAll('${parentId}')))
+        //
+        let activCheck = Array.from(document.querySelectorAll('#' + `${parentId}`));
+        // let activCheck = document.querySelector('#' + `${parentId}`);elem.removeAttribute
+
+        for (var i = 0; i < activCheck.length; i++) {
+            console.log(activCheck[i].children[0])
+            activCheck[i].children[0].removeAttribute("checked");
+            // console.log(activCheck[i].children[i].setAttribute('checked', null));
+            // console.log(i)
+            // alert( activCheck[i].children[i].); // DIV, UL, DIV, SCRIPT
+        }
+        // console.log(activCheck.childNodes[1]);
     }
-    console.log(arrayTodos);
 
 
 }
 
+let qqq = document.querySelector('.q123');
+console.log(qqq)
 function removeNote(event) {
     event.target.parentNode.remove();
     arrayTodos.splice(getTodo(event),1);
@@ -58,50 +72,38 @@ function removeNote(event) {
 
 
 // function showCompletedNote() {
-// //     let arrayCompletedNote = [];
-// //     arrayTodos.forEach((item) =>{
-// //         if (item.completed == true){
-// //             arrayCompletedNote.push(item);
-// //         }
-// //         console.log(arrayCompletedNote);
-// //         showCompletedArr(arrayCompletedNote);
-// //     });
-// // }
+//     let arrayCompletedNote = [];
+//     arrayTodos.forEach((item) =>{
+//         if (item.completed == true){
+//             arrayCompletedNote.push(item);
+//         }
+//     });
+//     return arrayCompletedNote;
+// }
 
-function showCompletedNote() {
-    arrayTodos.forEach((item) =>{
+function showCompletedArr(arrComleted) {
+    Array.from(section1.childNodes).forEach((item) => {
+        item.remove();
+    })
+    
+    arrComleted.forEach((item, index) =>{
         if (item.completed == true){
             let div = document.createElement('div');
-            div.className = "new-note completedNote";
+            div.className = "new-note";
             div.id = item.id;
             div.innerHTML =`<input class="checkbox-note" type="checkbox" checked onchange="check(event)">
                     <p class="title-note">${item.title}</p>
                     <button class="remove-note" onclick="removeNote(event)">Remove</button>`;
             section1.prepend(div);
-            item.completed = false;
-            // section1.querySelectorAll('.completedNote').forEach(item => item.remove())
-            // showCompletedArr(arrayCompletedNote);
+                }
+            })
+    console.log(arrComleted);
         }
-    });
-}
-
-// function showCompletedArr(arrComleted) {
-//     arrComleted.forEach((item) => {
-//
-//         let div = document.createElement('div');
-//         div.className = "new-note";
-//         div.id = item.id;
-//         div.innerHTML =`<input class="checkbox-note" type="checkbox" checked onchange="check(event)">
-//                     <p class="title-note">${item.title}</p>
-//                     <button class="remove-note" onclick="removeNote(event)">Remove</button>`;
-//         section1.prepend(div);
-//         //
-//     })
-// }
 
 let btnCompletedNote = document.querySelector('.btn-completed-note');
 btnCompletedNote.addEventListener('click', function () {
     section1.style.display = 'block';
+    showCompletedArr(arrayTodos);
 })
 
 
