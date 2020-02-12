@@ -1,6 +1,7 @@
 let mainInput = document.querySelector('.main-input');
 let section = document.querySelector('.show-Note');
 let section1 = document.querySelector('.completed-note');
+let section2= document.querySelector('.active-note');
 let arrayTodos = [];
 
 mainInput.addEventListener('keydown', function (event){
@@ -19,7 +20,6 @@ mainInput.addEventListener('keydown', function (event){
 });
 
 function showNewNote(newObj, inputChecked, parentTag) {
-    console.log(parentTag)
     let div = document.createElement('div');
     div.className = "new-note";
     div.id = newObj.id;
@@ -56,6 +56,8 @@ function check(event) {
     else {
         arrayTodos[getTodo(event)].completed = false;
         }
+    showCompletedArr(arrayTodos);
+    showActiveArr(arrayTodos);
     }
 
 function removeNote(event) {
@@ -73,11 +75,22 @@ function showCompletedArr(arrComleted) {
         }
     })
 }
+function showActiveArr(arrComleted){
+    Array.from(section2.childNodes).forEach((item) => {
+        item.remove();
+    })
+    arrComleted.forEach((item, index) =>{
+        if (item.completed == false){
+            showNewNote(item, null, section2);
+        }
+    })
+}
 
 let btnAllNote = document.querySelector('.btn-all-note');
 btnAllNote.addEventListener('click', function () {
-    section1.style.display = 'none';
     section.style.display = 'block';
+    section1.style.display = 'none';
+    section2.style.display = 'none';
     allNote(arrayTodos);
 })
 
@@ -85,11 +98,14 @@ let btnCompletedNote = document.querySelector('.btn-completed-note');
 btnCompletedNote.addEventListener('click', function () {
     section.style.display = 'none';
     section1.style.display = 'block';
+    section2.style.display = 'none';
     showCompletedArr(arrayTodos);
 })
 
-
-
-
-
-
+let btnActiveNote = document.querySelector('.btn-active-note');
+btnActiveNote.addEventListener('click', function () {
+    section.style.display = 'none';
+    section1.style.display = 'none';
+    section2.style.display = 'block';
+    showActiveArr(arrayTodos);
+})

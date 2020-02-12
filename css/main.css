@@ -21,6 +21,9 @@ main{
     height: 50px;
     border: 2px solid #000000;
 }
+.active-note{
+    display: none;
+}
 .title-note{
     /*display: inline-block;*/
 }
