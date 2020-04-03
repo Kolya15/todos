@@ -1,111 +1,217 @@
-let mainInput = document.querySelector('.main-input');
-let section = document.querySelector('.show-Note');
-let section1 = document.querySelector('.completed-note');
-let section2= document.querySelector('.active-note');
 let arrayTodos = [];
+let arrowSelectedAll = document.querySelector('.arrow-selected-all')
+let mainInput = document.querySelector('.main-input');
+let allNote = document.querySelector('.show-note');
+let activeNote = document.querySelector('.active-note');
+let completedNote = document.querySelector('.completed-note');
+let footer = document.querySelector('.footer')
+let counterItemsLeft = document.querySelector('.counter-items')
+let buttonControl = document.querySelector('.wrapper-btn');
+let clearCompleted = document.querySelector('.clear-completed');
 
-mainInput.addEventListener('keydown', function (event){
+// create new note
+mainInput.addEventListener('keydown', function (event) {
     if (event.code == "Enter") {
         if (mainInput.value.length) {
             let newNote = {
-                id: 'E'+ Math.floor(Math.random()*Math.random() * 1000),
+                id: 'E' + Math.floor(Math.random() * Math.random() * 1000),
                 title: mainInput.value,
                 completed: false,
             }
-            showNewNote(newNote, null, section);
             arrayTodos.push(newNote);
+            showNewNote(newNote, null, allNote);
+            showArrowSelected();
+            setColorArrowSelected();
+            showFooter(arrayTodos);
+            showItemsLeft();
             mainInput.value = null;
         }
     }
 });
 
+// display new note
 function showNewNote(newObj, inputChecked, parentTag) {
     let div = document.createElement('div');
     div.className = "new-note";
     div.id = newObj.id;
-    div.innerHTML =`<input class="checkbox-note" type="checkbox" ${inputChecked} onchange="check(event)">
+    div.innerHTML = `<input class="selected-note" type="checkbox" ${inputChecked} onchange="selectedNote(event)">
                     <p class="title-note">${newObj.title}</p>
-                    <button class="remove-note" onclick="removeNote(event)">Remove</button>`;
+                    <i class="fa fa-times remove-note" aria-hidden="true" onclick="removeNote(event)"></i>`;
     parentTag.prepend(div);
 }
 
-function allNote(arr) {
-    Array.from(section.childNodes).forEach((item) => {
+// display all note
+function showAllNote(arr) {
+    Array.from(allNote.childNodes).forEach((item) => {
         item.remove();
     })
-    arr.forEach(item =>{
-        if (item.completed == true){
-            showNewNote(item, 'checked', section);
-        }
-        else {
-            showNewNote(item, null, section);
+    arr.forEach(item => {
+        if (item.completed === true) {
+            showNewNote(item, 'checked', allNote);
+            showTextCompletedTodo(allNote);
+        } else {
+            showNewNote(item, null, allNote);
         }
     })
 }
 
-function getTodo(event) {
+// display active note
+function showActiveNote(arrComleted) {
+    Array.from(activeNote.childNodes).forEach((item) => {
+        item.remove();
+    })
+    arrComleted.forEach((item, index) => {
+        if (item.completed === false) {
+            showNewNote(item, null, activeNote);
+        }
+    })
+}
+
+// display completed note
+function showCompletedNote(arrComleted) {
+    Array.from(completedNote.childNodes).forEach((item) => {
+        item.remove();
+    })
+    arrComleted.forEach((item, index) => {
+        if (item.completed === true) {
+            showNewNote(item, 'checked', completedNote);
+            clearCompleted.style.visibility = 'visible';
+            showTextCompletedTodo(completedNote);
+        }
+    })
+}
+
+// selection and display of buttons
+let selectedButtonControl = null;
+buttonControl.addEventListener('click', function (event) {
+    let target = event.target;
+    if (target.tagName != 'BUTTON') return
+    if (selectedButtonControl) selectedButtonControl.classList.remove('active')
+    selectedButtonControl = target;
+    selectedButtonControl.classList.add('active');
+})
+
+
+let btnAllNote = document.querySelector('.btn-all-note');
+btnAllNote.addEventListener('click', function () {
+    allNote.style.display = 'block';
+    completedNote.style.display = 'none';
+    activeNote.style.display = 'none';
+    showAllNote(arrayTodos);
+})
+
+let btnCompletedNote = document.querySelector('.btn-completed-note');
+btnCompletedNote.addEventListener('click', function () {
+    allNote.style.display = 'none';
+    completedNote.style.display = 'block';
+    activeNote.style.display = 'none';
+    showCompletedNote(arrayTodos);
+})
+
+let btnActiveNote = document.querySelector('.btn-active-note');
+btnActiveNote.addEventListener('click', function () {
+    allNote.style.display = 'none';
+    completedNote.style.display = 'none';
+    activeNote.style.display = 'block';
+    showActiveNote(arrayTodos);
+})
+
+//getting the index of the selected note
+function getNote(event) {
     const target = event.target;
     const parentId = target.parentNode.id;
     return arrayTodos.findIndex(item => item.id == parentId);
 }
 
-function check(event) {
-    if (arrayTodos[getTodo(event)].completed == false){
-        arrayTodos[getTodo(event)].completed = true;
+// selection note
+function selectedNote(event) {
+    if (arrayTodos[getNote(event)].completed === false) {
+        arrayTodos[getNote(event)].completed = true;
+        let completedTodo = document.querySelector('#' + arrayTodos[getNote(event)].id)
+        showTextCompletedTodo(completedTodo);
+    } else {
+        arrayTodos[getNote(event)].completed = false;
+        let completedTodo = document.querySelector('#' + arrayTodos[getNote(event)].id)
+        showTextCompletedTodo(completedTodo);
     }
-    else {
-        arrayTodos[getTodo(event)].completed = false;
-        }
-    showCompletedArr(arrayTodos);
-    showActiveArr(arrayTodos);
-    }
+    setColorArrowSelected()
+    showItemsLeft();
+    showClearCompleted(arrayTodos);
+    showCompletedNote(arrayTodos);
+    showActiveNote(arrayTodos);
+}
 
+// change the text of the selected note
+function showTextCompletedTodo(section) {
+    section.querySelector('.title-note').classList.toggle('completed-title-note');
+}
+
+//display of the arrow for selecting all notes
+function showArrowSelected (){
+    if (arrayTodos.length >0) arrowSelectedAll.style.display = 'block';
+    else arrowSelectedAll.style.display = 'none';
+};
+
+function setColorArrowSelected() {
+    arrowSelectedAll.style.color = arrayTodos.find(item => item.completed === false) ? '#aaaaaa' : '#000000';
+};
+
+// selection of all notes
+arrowSelectedAll.addEventListener('click', function(){
+    if (arrayTodos.find(item => item.completed === false)){
+        arrayTodos.forEach(item => item.completed = true)
+    }
+    else arrayTodos.forEach(item => item.completed = false);
+    showItemsLeft()
+    setColorArrowSelected()
+    showAllNote(arrayTodos);
+    showCompletedNote(arrayTodos);
+    showActiveNote(arrayTodos);
+})
+
+// note deletion
 function removeNote(event) {
     event.target.parentNode.remove();
-    arrayTodos.splice(getTodo(event),1);
+    arrayTodos.splice(getNote(event), 1);
+    showArrowSelected()
+    showItemsLeft();
+    showClearCompleted(arrayTodos);
+    showFooter(arrayTodos);
 }
 
-function showCompletedArr(arrComleted) {
-    Array.from(section1.childNodes).forEach((item) => {
-        item.remove();
-    })
-    arrComleted.forEach((item, index) =>{
-        if (item.completed == true){
-            showNewNote(item, 'checked', section1);
-        }
-    })
-}
-function showActiveArr(arrComleted){
-    Array.from(section2.childNodes).forEach((item) => {
-        item.remove();
-    })
-    arrComleted.forEach((item, index) =>{
-        if (item.completed == false){
-            showNewNote(item, null, section2);
-        }
-    })
-}
+// delete all completed note
+function showClearCompleted(array) {
+    let completedItemFromArrayTodo = array.find(item => item.completed === true);
+    clearCompleted.style.visibility = completedItemFromArrayTodo ? 'visible' : 'hidden';
+};
 
-let btnAllNote = document.querySelector('.btn-all-note');
-btnAllNote.addEventListener('click', function () {
-    section.style.display = 'block';
-    section1.style.display = 'none';
-    section2.style.display = 'none';
-    allNote(arrayTodos);
+clearCompleted.addEventListener('click', function () {
+    arrayTodos = arrayTodos.filter(item => item.completed === false);
+    showArrowSelected()
+    showFooter(arrayTodos);
+    showAllNote(arrayTodos);
+    showCompletedNote(arrayTodos);
+    showClearCompleted(arrayTodos);
+    return arrayTodos;
 })
 
-let btnCompletedNote = document.querySelector('.btn-completed-note');
-btnCompletedNote.addEventListener('click', function () {
-    section.style.display = 'none';
-    section1.style.display = 'block';
-    section2.style.display = 'none';
-    showCompletedArr(arrayTodos);
-})
+// display footer
+function showFooter(arr) {
+    footer.style.display = arr.length != 0 ? 'flex' : 'none';
+};
 
-let btnActiveNote = document.querySelector('.btn-active-note');
-btnActiveNote.addEventListener('click', function () {
-    section.style.display = 'none';
-    section1.style.display = 'none';
-    section2.style.display = 'block';
-    showActiveArr(arrayTodos);
-})
+// display active note
+function showItemsLeft() {
+    let counter = 0;
+    arrayTodos.forEach(item => {
+        counter += !item.completed ? 1 : 0;
+    })
+    if (counter === 1) counterItemsLeft.innerHTML = `${counter} item left`
+    else counterItemsLeft.innerHTML = `${counter} items left`
+};
+
+
+
+
+
+
