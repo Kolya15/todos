@@ -1,6 +1,7 @@
 let arrayTodos = [];
 let arrowSelectedAll = document.querySelector('.arrow-selected-all')
 let mainInput = document.querySelector('.main-input');
+let mobileBtnAddNote = document.querySelector('.mobile-btn')
 let allNote = document.querySelector('.show-note');
 let activeNote = document.querySelector('.active-note');
 let completedNote = document.querySelector('.completed-note');
@@ -10,8 +11,9 @@ let buttonControl = document.querySelector('.wrapper-btn');
 let clearCompleted = document.querySelector('.clear-completed');
 
 // create new note
-mainInput.addEventListener('keydown', function (event) {
-    if (event.code == "Enter") {
+
+function createNewNote (event){
+    if (event.code === "Enter" || event.target.parentNode === mobileBtnAddNote) {
         if (mainInput.value.length) {
             let newNote = {
                 id: 'E' + Math.floor(Math.random() * Math.random() * 1000),
@@ -27,14 +29,18 @@ mainInput.addEventListener('keydown', function (event) {
             mainInput.value = null;
         }
     }
-});
+}
+
+mainInput.addEventListener('keydown', createNewNote.bind(event));
+mobileBtnAddNote.addEventListener('click', createNewNote.bind(event));
 
 // display new note
 function showNewNote(newObj, inputChecked, parentTag) {
     let div = document.createElement('div');
     div.className = "new-note";
     div.id = newObj.id;
-    div.innerHTML = `<input class="selected-note" type="checkbox" ${inputChecked} onchange="selectedNote(event)">
+    div.innerHTML = `<input id="${newObj.id + newObj.id}" type="checkbox" ${inputChecked} onchange="selectedNote(event)">
+                    <label for="${newObj.id + newObj.id}"></label>
                     <p class="title-note">${newObj.title}</p>
                     <i class="fa fa-times remove-note" aria-hidden="true" onclick="removeNote(event)"></i>`;
     parentTag.prepend(div);
@@ -166,6 +172,7 @@ arrowSelectedAll.addEventListener('click', function(){
     setColorArrowSelected()
     showAllNote(arrayTodos);
     showCompletedNote(arrayTodos);
+    showClearCompleted(arrayTodos);
     showActiveNote(arrayTodos);
 })
 
